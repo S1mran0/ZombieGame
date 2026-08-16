@@ -1,28 +1,10 @@
-/*
-    ZOMBIE SURVIVAL - Simple Version
-    A short console game demonstrating basic OOP in C++.
-    Uses only <iostream> and <string>.
-*/
-
 #include <iostream>
 #include <string>
+#include <cstdlib>
+#include <ctime>
 using namespace std;
 
-// This variable is changed a little bit every time we need a
-// "random" number. It's an unsigned long because the math below
-// can produce large numbers, and unsigned long can hold bigger
-// values than a normal int without going negative.
-unsigned long seedValue = 12345;
-
-// Returns a number between minVal and maxVal (both included).
-// Not truly random, but changes enough each call to feel random.
-int randomNumber(int minVal, int maxVal) {
-    seedValue = seedValue * 1103515245UL + 12345UL;
-    unsigned long value = (seedValue / 65536UL) % 32768UL;
-    return minVal + (int)(value % (maxVal - minVal + 1));
-}
-
-// ---------------- Player ----------------
+// PLAYER CLASS
 class Player {
 private:
     string name;
@@ -40,46 +22,70 @@ public:
         food = 2;
     }
 
-    bool isAlive() {
-        if (health <= 0) return false;
-        if (hunger <= 0) return false;
-        return true;
+    void showStatus(int day) {
+        cout << "\n--- Day " << day << " ---\n";
+        cout << "Health: " << health << endl;
+        cout << "Hunger: " << hunger << endl;
+        cout << "Food: " << food << endl;
+        cout << "Bullets: " << bullets << endl;
     }
 
     void eat() {
-        if (food <= 0) {
-            cout << "No food left!\n";
-            return;
+        if (food > 0) {
+            food--;
+            hunger = hunger + 30;
+
+            if (hunger > 100)
+                hunger = 100;
+
+            cout << "You ate food.\n";
         }
-        food = food - 1;
-        hunger = hunger + 30;
-        if (hunger > 100) hunger = 100;
-        cout << "You ate. Hunger: " << hunger << "\n";
+        else {
+            cout << "You have no food.\n";
+        }
     }
 
-    void takeDamage(int amount) {
+    void damage(int amount) {
         health = health - amount;
-        if (health < 0) health = 0;
+
+        if (health < 0)
+            health = 0;
     }
 
-    void loseHunger(int amount) {
-        hunger = hunger - amount;
-        if (hunger < 0) hunger = 0;
+    void loseHunger() {
+        hunger = hunger - 10;
+
+        if (hunger < 0)
+            hunger = 0;
     }
 
-    void addFood(int amount) { food = food + amount; }
-    void addBullets(int amount) { bullets = bullets + amount; }
-    int getBullets() { return bullets; }
-    void useBullet() { bullets = bullets - 1; }
+    void addFood() {
+        food++;
+    }
 
-    void showStatus(int day) {
-        cout << "\n--- Day " << day << " ---\n";
-        cout << "Health: " << health << "  Hunger: " << hunger
-             << "  Food: " << food << "  Bullets: " << bullets << "\n";
+    void addBullets() {
+        bullets = bullets + 2;
+    }
+
+    int getBullets() {
+        return bullets;
+    }
+
+    void shoot() {
+        bullets--;
+    }
+
+    int getHealth() {
+        return health;
+    }
+
+    int getHunger() {
+        return hunger;
     }
 };
 
-// ---------------- Zombie ----------------
+
+// ZOMBIE CLASS
 class Zombie {
 private:
     int health;
@@ -88,25 +94,29 @@ private:
 public:
     Zombie() {
         health = 50;
-        damage = randomNumber(10, 25);
+
+        // Zombie damage will be between 10 and 25
+        damage = rand() % 16 + 10;
     }
 
-    bool isDead() {
-        if (health <= 0) return true;
-        return false;
-    }
-
-    void takeDamage(int amount) {
-        health = health - amount;
+    void damageTaken() {
+        health = health - 30;
     }
 
     void attack(Player &player) {
-        cout << "Zombie hits you for " << damage << " damage!\n";
-        player.takeDamage(damage);
+        cout << "Zombie attacks you for "
+             << damage << " damage!\n";
+
+        player.damage(damage);
+    }
+
+    int getHealth() {
+        return health;
     }
 };
 
-// ---------------- Game ----------------
+
+// GAME CLASS
 class Game {
 private:
     Player player;
@@ -117,115 +127,180 @@ public:
         day = 1;
     }
 
-    void run() {
-        cout << "=== ZOMBIE SURVIVAL ===\n";
-        cout << "Survive as many days as you can!\n";
+    void start() {
 
-        bool playing = true;
-        while (playing) {
+        cout << "\n-----------------------\n";
+        cout << "     ZOMBIE SURVIVAL\n";
+        cout << "-----------------------\n";
+
+        int playing = 1;
+
+        while (playing == 1) {
+
             player.showStatus(day);
-            cout << "1. Search  2. Fight  3. Eat  4. Quit\nChoice: ";
+
+            cout << "\n1. Search";
+            cout << "\n2. Fight Zombie";
+            cout << "\n3. Eat Food";
+            cout << "\n4. Quit";
+            cout << "\nChoose: ";
 
             int choice;
             cin >> choice;
 
             if (choice == 1) {
                 search();
-            } else if (choice == 2) {
+            }
+
+            else if (choice == 2) {
                 fight();
-            } else if (choice == 3) {
+            }
+
+            else if (choice == 3) {
                 player.eat();
-            } else if (choice == 4) {
-                playing = false;
-            } else {
+            }
+
+            else if (choice == 4) {
+                playing = 0;
+                cout << "\nYou left the game.\n";
+            }
+
+            else {
                 cout << "Invalid choice.\n";
             }
 
-            player.loseHunger(10);
-            day = day + 1;
+            // One day passes after each action
+            if (choice != 4) {
 
-            if (player.isAlive() == false) {
-                playing = false;
-                cout << "\nGAME OVER. You survived " << day - 1 << " days.\n";
-                return;
+                player.loseHunger();
+                day++;
+
+                if (player.getHealth() <= 0 ||
+                    player.getHunger() <= 0) {
+
+                    cout << "\nGAME OVER!\n";
+                    cout << "You survived "
+                         << day - 1 << " days.\n";
+
+                    playing = 0;
+                }
             }
         }
-        cout << "\nThanks for playing! You survived " << day - 1 << " days.\n";
     }
 
 private:
+
     void search() {
-        int roll = randomNumber(1, 4);
-        if (roll == 1) {
-            player.addFood(1);
+
+        // Gives a number from 1 to 4
+        int result = rand() % 4 + 1;
+
+        if (result == 1) {
+
+            player.addFood();
+
             cout << "You found food!\n";
-        } else if (roll == 2) {
-            player.addBullets(2);
-            cout << "You found bullets!\n";
-        } else if (roll == 3) {
+        }
+
+        else if (result == 2) {
+
+            player.addBullets();
+
+            cout << "You found 2 bullets!\n";
+        }
+
+        else if (result == 3) {
+
             cout << "You found nothing.\n";
-        } else {
-            cout << "A zombie ambushes you!\n";
-            Zombie z;
-            battle(z);
+        }
+
+        else {
+
+            cout << "Oh no! A zombie found you!\n";
+
+            Zombie zombie;
+            fightZombie(zombie);
         }
     }
 
+
     void fight() {
-        cout << "A zombie appears!\n";
-        Zombie z;
-        battle(z);
+
+        cout << "\nA zombie appears!\n";
+
+        Zombie zombie;
+        fightZombie(zombie);
     }
 
-    void battle(Zombie &z) {
-        bool fighting = true;
 
-        while (fighting) {
-            // If the player has no bullets, the zombie gets a free hit
-            if (player.getBullets() <= 0) {
-                cout << "No bullets! The zombie attacks.\n";
-                z.attack(player);
+    void fightZombie(Zombie &zombie) {
 
-                if (player.isAlive() == false) {
-                    fighting = false;
-                }
-            } else {
-                // Player shoots the zombie
-                player.useBullet();
-                z.takeDamage(30);
+        int fighting = 1;
+
+        while (fighting == 1) {
+
+            if (player.getHealth() <= 0 ||
+                player.getHunger() <= 0) {
+
+                fighting = 0;
+            }
+
+            else if (zombie.getHealth() <= 0) {
+
+                fighting = 0;
+            }
+
+            else if (player.getBullets() <= 0) {
+
+                cout << "You have no bullets!\n";
+
+                zombie.attack(player);
+            }
+
+            else {
+
+                // Player shoots zombie
+                player.shoot();
+                zombie.damageTaken();
+
                 cout << "You shot the zombie!\n";
 
-                if (z.isDead()) {
-                    player.addFood(1);
-                    cout << "You defeated the zombie and looted food!\n";
-                    fighting = false;
-                } else {
-                    z.attack(player);
-                    if (player.isAlive() == false) {
-                        fighting = false;
-                    }
+                // Check if zombie is defeated
+                if (zombie.getHealth() <= 0) {
+
+                    cout << "You defeated the zombie!\n";
+
+                    // Get food after defeating zombie
+                    player.addFood();
+
+                    cout << "You found 1 food!\n";
+                }
+
+                else {
+
+                    // Zombie attacks back
+                    zombie.attack(player);
                 }
             }
         }
     }
 };
 
-// ---------------- main ----------------
+
+// MAIN FUNCTION
 int main() {
+
+    // Start random numbers
+    srand(time(0));
+
     string name;
+
     cout << "Enter your name: ";
     cin >> name;
 
-    // Turn the player's name into a starting number for randomNumber().
-    // This just adds up the character codes of each letter.
-    int total = 0;
-    for (int i = 0; i < (int)name.length(); i++) {
-        total = total + name[i];
-    }
-    seedValue = (unsigned long)(total + 1); // +1 so it is never zero
-
     Game game(name);
-    game.run();
+
+    game.start();
 
     return 0;
 }

@@ -1,0 +1,278 @@
+\documentclass[12pt, a4paper, oneside]{article}
+
+% --- Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[bindingoffset=1.57cm, left=2.54cm, right=2.54cm, top=2.54cm, bottom=2.54cm]{geometry}
+\usepackage{mathptmx}
+\usepackage{fancyhdr}
+\usepackage{lipsum}
+\usepackage{secdot}
+\usepackage{lastpage}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+\usepackage{wrapfig}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{listings}
+\usepackage{tocloft}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{floatrow}
+\floatsetup[table]{capposition=top}
+
+\usepackage{ltxtable}
+\usepackage{float}
+
+% --- Page Setup ---
+\linespread{1.2}
+\pagestyle{fancy}
+\fancyhf{} % Sets both header and footer to nothing
+\renewcommand{\headrulewidth}{0pt}
+\rhead{\textit{Survival Days: A Zombie Survival Simulator}}
+\cfoot{\thepage}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{12pt}
+
+\begin{document}
+
+% ==================== TITLE PAGE ====================
+\begin{titlepage}
+\centering
+\vspace*{1.4cm}
+{\large A Project Proposal Report on}\\[0.6cm]
+{\Large \textbf{Survival Days: A Zombie Survival Simulator}}\\[2.2cm]
+{\large A Project Report Submitted for the Course}\\[0.35cm]
+{\Large \textbf{Object-Oriented Programming (OOP)}}\\[0.35cm]
+{\large Bachelor of Science In Computer Science}\\[2.2cm]
+\vspace{2cm}
+{\large Submitted by:}\\[0.5cm]
+{\large \textbf{Simran Silpakar, WU0257727}}\\[0.3cm]
+{\large Date:}\\[0.3cm]
+{\large 08/14/2026}
+\vfill
+% ---------- College footer block ----------
+\begin{flushleft}
+\hspace{0.3cm}%
+\begin{minipage}[c]{0.20\textwidth}
+  \includegraphics[width=3cm,height=4cm]{college-logo.png}
+
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.74\textwidth}
+  \raggedright
+  {\Large \textbf{King's College Nepal}}\\[0.15cm]
+  \rule{\linewidth}{0.3pt}\\[0.1cm]
+  Bijulibajar, Kathmandu
+\end{minipage}
+\end{flushleft}
+\vspace*{1.4cm}
+\end{titlepage}
+
+\newpage
+\pagenumbering{roman}
+
+% ==================== ABSTRACT ====================
+\addcontentsline{toc}{section}{Abstract}
+\large
+\begin{center}
+	\textbf{ABSTRACT}
+\end{center}
+\normalsize
+\textit{Survival Days} is a console-based, turn-based survival game developed in C++ to demonstrate core Object-Oriented Programming (OOP) principles through an interactive, playable system rather than isolated exercises. The player manages four interdependent resources, health, hunger, food, and bullets, across a series of in-game days, choosing each turn to search the surroundings, fight a zombie, eat food, or quit. Random events drive replayability: searching may yield food, ammunition, nothing, or an ambush by a zombie, while every zombie is spawned with a randomized attack strength.
+ 
+The system is built around three cooperating classes, \texttt{Player}, \texttt{Zombie}, and \texttt{Game}, that together illustrate encapsulation (private state accessed only through public methods), composition (the \texttt{Game} class owns a \texttt{Player} and creates \texttt{Zombie} objects as encounters occur), and constructor-based initialization (each class establishes its own starting state). The game loop continues until the player's health or hunger is depleted, at which point the total number of days survived is reported as the player's final score. This proposal presents the project's objectives, scope, design, and planned deliverables, including UML class, use case, and sequence diagrams describing the system.
+ 
+\textbf{Keywords:} Zombie Survival, C++, Object-Oriented Programming, Console Application, Resource Management, UML Design.
+\\
+ 
+\break
+ 
+% ==================== LISTS AND TABLES ====================
+\large
+\addcontentsline{toc}{section}{Table of Contents}
+\begin{center}
+	\textbf{TABLE OF CONTENTS}
+\end{center}
+\normalsize
+\setlength{\cftbeforetoctitleskip}{0pt}
+\renewcommand{\contentsname}{}
+\tableofcontents
+ 
+\break
+ 
+\large
+\addcontentsline{toc}{section}{List of Figures}
+\begin{center}
+	\textbf{LIST OF FIGURES}
+\end{center}
+\renewcommand{\listfigurename}{}
+\normalsize
+\listoffigures
+ 
+\break
+ 
+% ==================== MAIN BODY ====================
+\cfoot{\textbf{\thepage} / \pageref{LastPage}}
+\normalsize
+\pagenumbering{arabic}
+ 
+\section{INTRODUCTION}
+This project applies Object-Oriented Programming concepts covered in the OOP course to a small, self-contained C++ console game. Rather than practising encapsulation, composition, and constructors through disconnected textbook exercises, \textit{Survival Days} requires several classes to cooperate within a single working system: a \texttt{Player} who holds resource state, a \texttt{Zombie} who threatens that state, and a \texttt{Game} that orchestrates the turn-based flow between them.
+ 
+\subsection{PROBLEM STATEMENT}
+Introductory and intermediate OOP assignments are frequently built around a single, isolated class such as a bank account or a shape, which demonstrates encapsulation but does not require multiple objects to interact, share state, or be composed into a larger system. As a result, it is common for students to be able to define OOP terms without having practised applying them together. At the same time, many student-built games are either too trivial to meaningfully exercise these concepts or too large in scope to complete within a single assignment window. This project is scoped to sit between those two extremes: small enough to finish within a course timeline, but structured around three interacting classes so that encapsulation, composition, and constructor-based initialization are all genuinely exercised.
+ 
+\subsection{PROJECT OBJECTIVES}
+To address the problem stated in Section 1.1, \textit{Survival Days} is proposed with the following objectives:
+ 
+\begin{enumerate}
+	\item \textbf{Design and implement cooperating classes:} Build a \texttt{Player}, \texttt{Zombie}, and \texttt{Game} class that interact with one another, clearly demonstrating encapsulation, composition, and constructor-based initialization.
+	\item \textbf{Model resource-management gameplay:} Balance health, hunger, food, and bullets turn by turn, requiring the player to plan and prioritize actions.
+	\item \textbf{Provide replayable, randomized gameplay:} Randomized search outcomes and randomized zombie encounter strength ensure no two playthroughs are identical.
+	\item \textbf{Reinforce programming and problem-solving skills:} Implementing the turn-based loop, input validation, and combat logic strengthens understanding of control flow, state management, and defensive programming.
+\end{enumerate}
+ 
+\subsection{SCOPE AND LIMITATIONS}
+\textit{Survival Days} is developed as a single-player, text-based console application in C++ that can be compiled and run on any standard C++ compiler without additional dependencies.
+ 
+The scope of this project is:
+\begin{enumerate}
+	\item The target audience is any student or player with access to a C++ compiler and a terminal or console, requiring no specialized hardware or graphics support.
+	\item The system models core survival mechanics, health, hunger, combat, and looting, that can later be extended into a graphical or web-based version of the game.
+	\item Randomized event and combat systems give a different playthrough experience each time, providing meaningful replay value within a small codebase.
+\end{enumerate}
+ 
+The limitations of this project are:
+\begin{enumerate}
+	\item The game is entirely text- and console-based; no graphical user interface is provided in this version.
+	\item The game supports single-player mode only; there is no multiplayer or networked functionality.
+	\item There is no save/load system in the current version; progress is not retained between separate runs of the program.
+	\item The variety of zombie types and world content is intentionally limited to what is needed to clearly demonstrate OOP concepts, rather than to build a full commercial-scale game.
+\end{enumerate}
+ 
+\break
+ 
+\section{LITERATURE REVIEW}
+Games have been widely studied as a medium for teaching object-oriented concepts, on the basis that first-year programming students often disengage from purely textbook-driven exercises and respond better to interactive, goal-directed tasks. A recurring finding in this literature is that students understand OOP vocabulary, class, object, method, more readily when those terms map onto tangible, real-world-like entities that a game naturally provides, rather than abstract examples with no clear real-world analogue.
+ 
+Text-based, turn-based survival simulations are a well-precedented format for this kind of exercise: a central game-management routine advances time in discrete steps (days or turns), while a player entity accumulates or loses resources based on the actions chosen and the random events encountered. This format is attractive for a course project because the core loop can be implemented with a small amount of code while still producing a genuinely replayable experience.
+ 
+Design guidance on survival games more broadly identifies resource scarcity, typically modelled through health and hunger meters, as the mechanic that creates tension and rewards planning. This guidance also stresses that difficulty and death conditions should be tuned so failure feels like the result of the player's choices rather than an arbitrary punishment. These principles directly informed the tuning decisions in \textit{Survival Days}, including the amount of hunger restored per meal and the randomized damage range assigned to each zombie, so that the game remains completable while still requiring the player to make meaningful trade-offs between searching, fighting, and eating.
+ 
+\break
+ 
+\section{METHODOLOGY}
+Given the small, single-developer scope of this project, development follows four sequential phases with light iteration between coding and testing as issues are found, rather than a multi-increment process.
+ 
+\textbf{Requirement Analysis:} The game's functional requirements, the actions available to the player and the win/loss conditions, are identified and documented as a short specification describing each class's responsibilities.
+ 
+\textbf{Design:} The system is designed against that specification. A UML class diagram, use case diagram, and sequence diagram (Section 4) are produced to model the classes, their relationships, and the order of interactions during gameplay.
+ 
+\textbf{Coding:} The functionality specified during design is implemented in C++, producing a working console application.
+ 
+\textbf{Testing and Evaluation:} Individual actions (search, fight, eat) are tested separately to confirm they update player state correctly, and the full game loop is tested end-to-end, including edge cases such as invalid menu input, running out of bullets mid-combat, and simultaneous health/hunger depletion, to confirm the game behaves correctly without crashing.
+ 
+\subsection{TOOLS TO BE USED}
+The following tools are used throughout this project to streamline the development process.
+ 
+\textbf{VS CODE:}\\
+Used as the primary editor for writing, navigating, and debugging the C++ source code.
+ 
+\textbf{GIT AND GITHUB:}\\
+Git is used to track changes and manage versions of the project throughout development. GitHub hosts the project repository and backs up the codebase.
+ 
+\textbf{G++ / GCC COMPILER:}\\
+The GNU C++ compiler (g++) is used to compile and build the console application, and to catch syntax and type errors during development.
+ 
+\subsection{OOP CONCEPTS COVERAGE}
+ 
+\textbf{ENCAPSULATION:}\\
+\texttt{Player} and \texttt{Zombie} keep their attributes (health, hunger, bullets, food, damage) private, exposing controlled behaviour only through public methods such as \texttt{eat()}, \texttt{damage()}, \texttt{shoot()}, and \texttt{attack()}.
+ 
+\textbf{COMPOSITION:}\\
+The \texttt{Game} class owns a \texttt{Player} object for the lifetime of a session and creates \texttt{Zombie} objects on demand whenever a combat encounter occurs, modelling a clear ``has-a'' relationship between classes.
+ 
+\textbf{CONSTRUCTORS:}\\
+Each class defines a constructor that establishes its starting state: \texttt{Player} initializes health, hunger, bullets, and food to their starting values from the player's name; \texttt{Zombie} assigns a randomized damage value on creation; \texttt{Game} initializes the day counter and constructs its \texttt{Player}.
+ 
+\textbf{CONTROL FLOW AND STATE MANAGEMENT:}\\
+The \texttt{Game::start()} and \texttt{Game::fightZombie()} methods manage nested loops and conditional branching to drive the turn-based menu, the combat loop, and the end-of-game detection, reinforcing state-management and defensive-programming practice.
+ 
+\break
+ 
+\section{SYSTEM DESIGN}
+This section presents three design artifacts describing the system: the UML class diagram, which models the static structure of the classes and their relationships; the use case diagram, which models how the player interacts with the system's functionality; and the sequence diagram, which models the order of interactions during a combat encounter.
+ 
+\subsection{UML CLASS DIAGRAM}
+The class diagram below shows the three classes in the system, \texttt{Player}, \texttt{Zombie}, and \texttt{Game}, together with their attributes, methods, and relationships. The \texttt{Game} class is composed of exactly one \texttt{Player} object for the session, and creates \texttt{Zombie} objects as combat encounters occur, shown as a dependency relationship.
+ 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.85\linewidth]{}
+\begin{figure}
+	    \centering
+	    \includegraphics[width=0.7\linewidth]{class_diagram (1).png}
+	\end{figure}
+		\caption{UML Class Diagram}
+	\label{fig:class_diagram}
+\end{figure}
+\pagebreak
+ 
+\subsection{USE CASE DIAGRAM}
+The use case diagram identifies the single actor, the Player, and the key actions available in a session: viewing the daily status, searching the surroundings, fighting a zombie, eating food, and quitting the game. Searching may include a random zombie encounter, which in turn includes the fight interaction, shown using the \texttt{<<include>>} relationship.
+ 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.85\linewidth]{}
+\begin{figure}
+	    \centering
+	    \includegraphics[width=0.5\linewidth]{UseCase.png}
+	\end{figure}
+		\caption{Use Case Diagram}
+	\label{fig:usecase_diagram}
+\end{figure}
+\pagebreak
+ 
+\subsection{SEQUENCE DIAGRAM}
+The sequence diagram illustrates the order of interactions among the User, \texttt{Game}, \texttt{Player}, and \texttt{Zombie} objects during a ``Fight Zombie'' encounter. It begins with the user choosing the fight option, for which \texttt{Game} creates a \texttt{Zombie} and checks the player's bullet count. It then shows the shoot/attack loop that repeats until either the player or the zombie is defeated, and the two outcomes that follow: the player receiving food for a defeated zombie, or the zombie attacking the player when it survives.
+ 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.95\linewidth]{}
+\begin{figure}
+	    \centering
+	    \includegraphics[width=1\linewidth]{sequence_diagram.png}
+	\end{figure}
+		\caption{Sequence Diagram --- Fight Zombie Interaction}
+	\label{fig:sequence_diagram}
+\end{figure}
+ 
+\break
+ 
+\section{PROPOSED DELIVERABLES}
+The project will deliver a single, self-contained C++ console application implementing a complete, playable turn-based survival game. There is one active user role: the Player, who chooses actions each day in an attempt to survive as long as possible.
+ 
+In the finished application, the player will be able to search the surrounding area for supplies, fight zombies encountered directly or through a search-triggered ambush, eat food to restore hunger, and quit at any time to end the session early. The \texttt{Game} class manages the overall session: presenting the menu, applying passive hunger decay, resolving random search and combat outcomes, advancing the day counter, and detecting the game-over condition when health or hunger reaches zero.
+ 
+The final deliverable also includes the well-commented C++ source code itself, together with the UML class, use case, and sequence diagrams presented in Section 4, so that the codebase and its design documentation together serve as a clear demonstration of the OOP concepts covered in this proposal.
+ 
+\break
+ 
+\section*{BIBLIOGRAPHY}
+\addcontentsline{toc}{section}{Bibliography}
+ 
+\begin{itemize}
+	\item Lippman, S. B., Lajoie, J., Moo, B. E. \textit{C++ Primer}, 5th Edition. Addison-Wesley, 2012.
+	\item C++ Language Reference, cppreference.com. \url{https://en.cppreference.com/}
+	\item Git Documentation. \url{https://git-scm.com/doc}
+	\item GitHub Docs. \url{https://docs.github.com/}
+	\item Survival Game Design (Principles, Examples, Template), Game Design Skills. \url{https://gamedesignskills.com/game-design/survival/}
+\end{itemize}
+ 
+\end{document}
+ 
