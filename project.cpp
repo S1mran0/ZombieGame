@@ -129,9 +129,9 @@ public:
 
     void start() {
 
-        cout << "\n-----------------------\n";
-        cout << "     ZOMBIE SURVIVAL\n";
-        cout << "-----------------------\n";
+        cout << "\n-------------------------\n";
+        cout << "     >ZOMBIE SURVIVAL<\n";
+        cout << "-------------------------\n";
 
         int playing = 1;
 
